@@ -1,6 +1,7 @@
 package com.devsuperior.dscatalog.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -24,6 +25,12 @@ public class CategoryService {
 		List<CategoryDTO> listDto = list.stream().map(x -> new CategoryDTO(x)).collect(Collectors.toList());
 		//List<CategoryDTO> listDto = list.stream().map(x -> new CategoryDTO(x)).toList();
 		return listDto;
+	}
+
+	@Transactional
+	public CategoryDTO findById(Long id) {
+		Optional<Category> obj = categoryRepository.findById(id);
+		return new CategoryDTO(obj.get());
 	}
 	
 }
