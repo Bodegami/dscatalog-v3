@@ -39,5 +39,10 @@ public class CategoryDTO implements Serializable {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	public Category toModel() {
+		Category category = new Category(null, this.name);
+		return category;
+	}
 
 }
