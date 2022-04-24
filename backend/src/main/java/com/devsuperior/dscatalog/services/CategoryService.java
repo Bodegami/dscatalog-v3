@@ -1,8 +1,6 @@
 package com.devsuperior.dscatalog.services;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
@@ -10,6 +8,8 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.devsuperior.dscatalog.dto.CategoryDTO;
@@ -25,11 +25,9 @@ public class CategoryService {
 	private CategoryRepository categoryRepository;
 	
 	@Transactional
-	public List<CategoryDTO> findAll() {
-		List<Category> list =  categoryRepository.findAll();
-		List<CategoryDTO> listDto = list.stream().map(x -> new CategoryDTO(x)).collect(Collectors.toList());
-		//List<CategoryDTO> listDto = list.stream().map(x -> new CategoryDTO(x)).toList();
-		return listDto;
+	public Page<CategoryDTO> findAllPaged(PageRequest pageRequest) {
+		Page<Category> list =  categoryRepository.findAll(pageRequest);
+		return list.map(x -> new CategoryDTO(x));
 	}
 
 	@Transactional
