@@ -104,4 +104,8 @@ public class ProductDTO implements Serializable {
 		this.categories = categories;
 	}
 
+	public Product toModel() {
+		return new Product(null, this.name, this.description, this.price, this.imgUrl, this.date);
+	}
+
 }
