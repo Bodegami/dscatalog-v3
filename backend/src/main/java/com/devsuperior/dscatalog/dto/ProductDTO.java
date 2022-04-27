@@ -8,6 +8,10 @@ import java.util.Set;
 
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ProductDTO implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -20,6 +24,8 @@ public class ProductDTO implements Serializable {
 	private Instant date;
 
 	private List<CategoryDTO> categories = new ArrayList<>();
+	
+	private ObjectMapper mapper = new ObjectMapper();
 
 	@Deprecated
 	public ProductDTO() {
@@ -106,6 +112,19 @@ public class ProductDTO implements Serializable {
 
 	public Product toModel() {
 		return new Product(null, this.name, this.description, this.price, this.imgUrl, this.date);
+	}
+	
+	public String javaToJson(ProductDTO productDTO) throws JsonProcessingException {
+		return mapper.writeValueAsString(productDTO);
+	}
+	
+	public ProductDTO jsonToJava(String json) throws JsonProcessingException {
+		return mapper.readValue(json, ProductDTO.class);
+	}
+	
+	public String jsonNode(String json) throws JsonMappingException, JsonProcessingException {
+		JsonNode jsonNode = mapper.readTree(json);
+		return jsonNode.get("name").asText();
 	}
 
 }

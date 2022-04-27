@@ -18,8 +18,11 @@ import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
 import com.devsuperior.dscatalog.repositories.CategoryRepository;
 import com.devsuperior.dscatalog.repositories.ProductRepository;
+import com.devsuperior.dscatalog.repositories.ProductRepositoryRedis;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 import com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class ProductService {
@@ -29,6 +32,9 @@ public class ProductService {
 
 	@Autowired
 	private CategoryRepository categoryRepository;
+	
+	@Autowired
+	private ProductRepositoryRedis productRepositoryRedis;
 
 	@Transactional
 	public Page<ProductDTO> findAllPaged(PageRequest pageRequest) {
@@ -36,11 +42,24 @@ public class ProductService {
 		return list.map(x -> new ProductDTO(x));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Transactional
 	public ProductDTO findById(Long id) {
-		Optional<Product> obj = productRepository.findById(id);
-		Product entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found..."));
-		return new ProductDTO(entity, entity.getCategories());
+		
+		String productInRedis = productRepositoryRedis.getProgrammerAsString(id.toString());
+		if (productInRedis != null) {
+			ProductDTO dto = new ProductDTO();
+			try {
+				dto.jsonToJava(productInRedis);
+			} catch (JsonProcessingException e) {
+				System.out.println("Broken!");
+			}
+			return dto;
+		} else {
+			Optional<Product> obj = productRepository.findById(id);
+			Product entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found..."));
+			return new ProductDTO(entity, entity.getCategories());
+		}
 	}
 
 	@SuppressWarnings("deprecation")
@@ -49,7 +68,9 @@ public class ProductService {
 		Product entity = new Product();
 		copyDtoToEntity(dto, entity);
 		productRepository.save(entity);
-		return new ProductDTO(entity);
+		ProductDTO dtoResponse = new ProductDTO(entity);
+		productRepositoryRedis.setProgrammerAsString(entity.getId().toString(), dtoResponse.toString());
+		return dtoResponse ;
 	}
 
 	@Transactional
