@@ -43,6 +43,18 @@ public class ProductRepositoryTests {
 	}
 	
 	@Test
+	public void saveShouldUpdateProductWhenIdExists() {
+		
+		Product product = Factory.createProduct();
+		
+		Product result = repository.save(product);
+		
+		Assertions.assertEquals(product, result);
+		Assertions.assertSame(product.getId(), result.getId());
+		Assertions.assertEquals(product.toString(), result.toString());
+	}
+	
+	@Test
 	public void findAllShouldReturnAllProductsWhenDatabaseIsPopulated() {
 		
 		List<Product> listOfResults = repository.findAll();
