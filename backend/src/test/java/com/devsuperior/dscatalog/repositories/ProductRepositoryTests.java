@@ -1,5 +1,6 @@
 package com.devsuperior.dscatalog.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
@@ -39,6 +40,25 @@ public class ProductRepositoryTests {
 		
 		Assertions.assertNotNull(product.getId());
 		Assertions.assertEquals(countTotalProducts + 1, product.getId());
+	}
+	
+	@Test
+	public void findAllShouldReturnAllProductsWhenDatabaseIsPopulated() {
+		
+		List<Product> listOfResults = repository.findAll();
+		
+		Assertions.assertFalse(listOfResults.isEmpty());
+		Assertions.assertEquals(countTotalProducts, listOfResults.size());
+	}
+	
+	@Test
+	public void findAllShouldReturnAEmptyListWhenDatabaseIsEmpty() {
+		
+		repository.deleteAll();
+		List<Product> listOfResults = repository.findAll();
+		
+		Assertions.assertTrue(listOfResults.isEmpty());
+		Assertions.assertEquals(0L, listOfResults.size());
 	}
 	
 	@Test
